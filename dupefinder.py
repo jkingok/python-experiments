@@ -55,7 +55,5 @@ whittled = [ x for x in nextw if len(x) > 1 ]
 # or a summary
 print "From", len(files), "file(s) scanned:",
 print len(whittled), "set(s) of duplicate files",
-n = 0
-for x in whittled:
-    n += len(x)
+n = sum([ len(x) for x in whittled ])
 print n, "or", float(n) / len(files) * 100, "% were unique." 
