@@ -21,7 +21,8 @@ def identify(path):
 def walker(arg, dirname, filenames):
     for filename in filenames:
         pathfile = os.path.join(dirname, filename)
-        files[pathfile] = identify(pathfile)
+        if candidate(pathfile):
+            files[pathfile] = identify(pathfile)
 
 # split the given list into a list of lists where the items are distinct
 def separate(items):
@@ -54,6 +55,6 @@ whittled = [ x for x in nextw if len(x) > 1 ]
 
 # or a summary
 print "From", len(files), "file(s) scanned:",
-print len(whittled), "set(s) of duplicate files",
 n = sum([ len(x) for x in whittled ])
-print n, "or", float(n) / len(files) * 100, "% were unique." 
+print n, "duplicate files in", len(whittled), "set(s)",
+print len(files) - n, "or", 100 - float(n) / len(files) * 100, "% were unique." 
