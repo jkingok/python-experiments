@@ -4,13 +4,18 @@ from os import walk
 import os.path
 import stat
 
+path = input('Enter the path to search:')
+
 # Master list of found files
 files = {}
 
-# checks whethere the file is suitable
+# checks whether the file is suitable
 def candidate(path):
-    s = os.stat(path)
-    return stat.S_ISREG(s.st_mode)
+    try:
+        s = os.stat(path)
+        return stat.S_ISREG(s.st_mode)
+    except:
+        return False
 
 # constructs as much info about a file as possible
 def identify(path):
@@ -51,7 +56,7 @@ def separate2(items):
 # Old way
 #os.path.walk(".", walker, u"Walker")
 # New way
-for root, dirs, names in os.walk("."):
+for root, dirs, names in os.walk(path):
     walker(u"Walker", root, names)
 
 # progressively whittle down the list
@@ -71,11 +76,14 @@ for rule in [ separate1, separate2 ]:
 #    print x
 
 # or a summary
-print("From", len(files), "file(s) scanned:")
-n = sum([ len(x) for x in whittled ])
-print(n, "duplicate files in", len(whittled), "set(s)")
-print(len(files) - n, "or", 100 - float(n) / len(files) * 100, "% were unique.")
-if n > 0:
-    print("Duplicates:")
-    for i, f in enumerate(whittled):
-        print(i + 1, list(f.keys()))
+if len(files) > 0:
+    print("From", len(files), "file(s) scanned:")
+    n = sum([ len(x) for x in whittled ])
+    print(n, "duplicate files in", len(whittled), "set(s)")
+    print(len(files) - n, "or", 100 - float(n) / len(files) * 100, "% were unique.")
+    if n > 0:
+        print("Duplicates:")
+        for i, f in enumerate(whittled):
+            print(i + 1, list(f.keys()))
+else:
+    print("No files found!")
