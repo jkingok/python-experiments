@@ -2,6 +2,7 @@
 
 from os import walk
 import os.path
+import hashlib
 import stat
 
 path = input('Enter the path to search:')
@@ -52,6 +53,16 @@ def separate2(items):
             sizes[v['size']] = {k: v}
     return sizes.values()
 
+def separate3(items):
+    hashes = {}
+    for k, v in items.items():
+        hashval = hashlib.sha1(open(os.path.join(v['path'], v['name'] + v['ext']), 'rb').read()).hexdigest()
+        if hashval in hashes:
+            hashes[hashval][k] = v
+        else:
+            hashes[hashval] = {k: v}
+    return hashes.values()
+
 # main logic
 # Old way
 #os.path.walk(".", walker, u"Walker")
@@ -64,7 +75,7 @@ for root, dirs, names in os.walk(path):
 whittled = [files]
 
 # rule 1 - files with the same name are the same
-for rule in [ separate1, separate2 ]:
+for rule in [ separate1, separate2, separate3 ]:
     nextw = []
     for l in whittled:
         if len(l) > 1:
