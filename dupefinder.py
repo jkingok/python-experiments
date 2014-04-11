@@ -14,9 +14,11 @@ def candidate(path):
 
 # constructs as much info about a file as possible
 def identify(path):
+    s = os.stat(path)
     return {'path': os.path.split(path)[0],
         'name': os.path.splitext(os.path.split(path)[1])[0],
-        'ext': os.path.splitext(os.path.split(path)[1])[1]}
+        'ext': os.path.splitext(os.path.split(path)[1])[1],
+        'size': s.st_size}
 
 # callback for walking through directories
 def walker(arg, dirname, filenames):
@@ -26,15 +28,24 @@ def walker(arg, dirname, filenames):
             files[pathfile] = identify(pathfile)
 
 # split the given list into a list of lists where the items are distinct
-def separate(items):
+def separate1(items):
     names = {}
-    for k, v in l.items():
+    for k, v in items.items():
         filename = v['name'] + v['ext']
         if filename in names:
             names[filename][k] = v
         else:
             names[filename] = {k: v}
     return names.values()
+
+def separate2(items):
+    sizes = {}
+    for k, v in items.items():
+        if v['size'] in sizes:
+            sizes[v['size']][k] = v
+        else:
+            sizes[v['size']] = {k: v}
+    return sizes.values()
 
 # main logic
 # Old way
@@ -48,11 +59,12 @@ for root, dirs, names in os.walk("."):
 whittled = [files]
 
 # rule 1 - files with the same name are the same
-nextw = []
-for l in whittled:
-    if len(l) > 1:
-        nextw += separate(l)
-whittled = [ x for x in nextw if len(x) > 1 ]
+for rule in [ separate1, separate2 ]:
+    nextw = []
+    for l in whittled:
+        if len(l) > 1:
+            nextw += rule(l)
+    whittled = [ x for x in nextw if len(x) > 1 ]
 
 # print result
 #for x in whittled:
